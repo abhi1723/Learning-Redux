@@ -1,3 +1,10 @@
+// REDUCER
+function todos(state=[],action){
+    if(action =="ADD_TODO"){
+        return state.concat([action.todo]);
+    }
+    return state;
+}
 function createStore() {
     // The store should have 4 parts
     // 1. The state tree
@@ -18,10 +25,14 @@ function createStore() {
             listeners = listeners.filter((l) => l != listener);
         }
     }
-
+    const dispatch = action =>{
+        todos(state,action);
+        listeners.forEach(listener => listener());
+    }
     return{
         getState,
-        subscribe
+        subscribe,
+        dispatch
     };
 }
 const store = createStore();
