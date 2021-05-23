@@ -33,6 +33,13 @@ function todos(state=[],action){
     if(action.type=="ADD_TODO"){
         return state.concat([action.todo]);
     }
+    if(action.type=="REMOVE_TODO"){
+        return state.filter(todo => todo.id!==action.id)
+    }
+    if(action.type=="TOGGLE_TODO"){
+        // For that particular ID, fetch the object & reverse the value of isComplete
+        return state.map(todo => todo.id!==action.id?todo: Object.assign({},todo,{isComplete:!todo.isComplete}));
+    }
     return state;
 }
 const store = createStore(todos);
@@ -47,6 +54,14 @@ store.dispatch({
   todo:{
       id: 1,
       name: "Redux Complete",
-      isComplete: False
+      isComplete: false
   }  
 })
+store.dispatch({
+    type : "TOGGLE_TODO",
+    id : 1  
+  })
+  store.dispatch({
+    type : "REMOVE_TODO",
+    id: 1  
+  })
