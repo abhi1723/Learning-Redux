@@ -1,11 +1,4 @@
-// REDUCER
-function todos(state=[],action){
-    if(action =="ADD_TODO"){
-        return state.concat([action.todo]);
-    }
-    return state;
-}
-function createStore() {
+function createStore(todos) {
     // The store should have 4 parts
     // 1. The state tree
     // 2. Get the state
@@ -26,7 +19,7 @@ function createStore() {
         }
     }
     const dispatch = action =>{
-        todos(state,action);
+        state =todos(state,action);
         listeners.forEach(listener => listener());
     }
     return{
@@ -35,10 +28,25 @@ function createStore() {
         dispatch
     };
 }
-const store = createStore();
+// REDUCER
+function todos(state=[],action){
+    if(action.type=="ADD_TODO"){
+        return state.concat([action.todo]);
+    }
+    return state;
+}
+const store = createStore(todos);
 store.subscribe(()=>{
-    console.log("The new state is : ",store.getState);
+    console.log("The new state is : ",store.getState());
 });
 store.subscribe(()=>{
     console.log("The store changed.");
 });
+store.dispatch({
+  type : "ADD_TODO",
+  todo:{
+      id: 1,
+      name: "Redux Complete",
+      isComplete: False
+  }  
+})
