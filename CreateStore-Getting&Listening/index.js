@@ -1,4 +1,4 @@
-function createStore(todos) {
+function createStore(app) {
     // The store should have 4 parts
     // 1. The state tree
     // 2. Get the state
@@ -19,7 +19,7 @@ function createStore(todos) {
         }
     }
     const dispatch = action =>{
-        state =todos(state,action);
+        state =app(state,action);
         listeners.forEach(listener => listener());
     }
     return{
@@ -42,7 +42,27 @@ function todos(state=[],action){
     }
     return state;
 }
-const store = createStore(todos);
+function goals(state=[],action){
+    if(action.type=="ADD_GOAL"){
+        return state.concat([action.goal]);
+    }
+    if(action.type=="REMOVE_GOAL"){
+        return state.filter(goal => goal.id!==action.id)
+    }
+    if(action.type=="TOGGLE_GOAL"){
+        // For that particular ID, fetch the object & reverse the value of isComplete
+        return state.map(goal => goal.id!==action.id?goal: Object.assign({},goal,{isComplete:!goal.isComplete}));
+    }
+    return state;
+}
+function app(state={},action){
+    return {
+        todos : todos(state.todos,action),
+        goals : goals(state.goals,action)
+    }
+}
+
+const store = createStore(app);
 store.subscribe(()=>{
     console.log("The new state is : ",store.getState());
 });
@@ -65,3 +85,20 @@ store.dispatch({
     type : "REMOVE_TODO",
     id: 1  
   })
+  store.dispatch({
+    type : "ADD_GOAL",
+    todo:{
+        id: 1,
+        name: "Learn to dance",
+        isComplete: false
+    }  
+  })
+  store.dispatch({
+    type : "ADD_GOAL",
+    goal:{
+        id: 2,
+        name: "Read Stoner",
+        isComplete: false
+    }  
+  })
+  
