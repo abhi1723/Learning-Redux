@@ -1,0 +1,201 @@
+<html>
+    <head></head>
+    <body>
+        <div id="todoContainer">
+            <h1>Todo List</h1>
+            <input type="text" id="todo" placeholder="Add Todo"/>
+            <button id="todoButton">Add Todo</button>
+            <ul id="todoList"></ul>
+        </div>
+        <div id="goalContainer">
+            <h1>Goals</h1>
+            <input type="text" id="goal" placeholder="Add Goal"/>
+            <button id="goalButton">Add Todo</button>
+            <ul id="goalList"></ul>
+        </div>
+        <script>
+            document.getElementById('todoButton').addEventListener('click',addTodo);
+            function createStore(app) {
+            // The store should have 4 parts
+            // 1. The state tree
+            // 2. Get the state
+            // 3. Listen to changes on the state
+            // 4. Update the state
+              
+            let state // Step 1 
+            let listeners =[];
+            const getState = () => state; //Step 2
+
+            const subscribe = (listener) =>{
+                listeners.push(listener);
+            };
+
+            const unubscribe =(listener) =>{
+                return () =>{
+                    listeners = listeners.filter((l) => l != listener);
+                }
+            }
+            const dispatch = action =>{
+                state =app(state,action);
+                listeners.forEach(listener => listener());
+            }
+            return{
+                getState,
+                subscribe,
+                dispatch
+            };
+        }
+        // REDUCER
+        function todos(state=[],action){
+            if(action.type=="ADD_TODO"){
+                return state.concat([action.todo]);
+            }
+            if(action.type=="REMOVE_TODO"){
+                return state.filter(todo => todo.id!==action.id)
+            }
+            if(action.type=="TOGGLE_TODO"){
+                // For that particular ID, fetch the object & reverse the value of isComplete
+                return state.map(todo => todo.id!==action.id?todo: Object.assign({},todo,{isComplete:!todo.isComplete}));
+            }
+            return state;
+        }
+        function goals(state=[],action){
+            if(action.type=="ADD_GOAL"){
+                return state.concat([action.goal]);
+            }
+            if(action.type=="REMOVE_GOAL"){
+                return state.filter(goal => goal.id!==action.id)
+            }
+            if(action.type=="TOGGLE_GOAL"){
+                // For that particular ID, fetch the object & reverse the value of isComplete
+                return state.map(goal => goal.id!==action.id?goal: Object.assign({},goal,{isComplete:!goal.isComplete}));
+            }
+            return state;
+        }
+        function app(state={},action){
+            return {
+                todos : todos(state.todos,action),
+                goals : goals(state.goals,action)
+            }
+        }
+        function addTodo(){
+            let text = document.getElementById('todo');
+            const name = text.value;
+            text.value='';
+            store.dispatch(addTodoAction({
+                id : generateId(),
+                name,
+                isComplete: false
+            }));
+        }
+        function generateId(){
+            return Math.random().toString(36).substring(2)+(new Date().getTime().toString(36));
+        }
+        function addTodoAction (todo){
+            return{
+                type : 'ADD_TODO',
+                todo
+            }
+        }
+        function toggleTodoAction(id){
+            return{
+                type: "TOGGLE_TODO",
+                id
+            }
+        }
+        function removeTodoAction(id){
+            return {
+                type: "REMOVE_TODO",
+                id
+            }
+        }
+        function addGoalAction (goal){
+            return{
+                type : 'ADD_GOAL',
+                goal
+            }
+        }
+        function toggleGoalAction(id){
+            return{
+                type: "TOGGLE_GOAL",
+                id
+            }
+        }
+        function removeGoalAction(id){
+            return {
+                type: "REMOVE_GOAL",
+                id
+            }
+        }
+        const store = createStore(app);
+        store.subscribe(()=>{
+            console.log("The new state is : ",store.getState());
+        });
+        store.subscribe(()=>{
+            console.log("The store changed.");
+        });
+        store.subscribe(() =>{
+            const {todos, goals} = store.getState();
+            document.getElementById('todoList').innerHTML='';
+            todos.forEach(todo => appendTodoListToDOM(todo));
+        })
+        function appendTodoListToDOM(todo){
+            var todoUl = document.getElementById('todoList');
+            var newLi = document.createElement('li');
+            var newLiText = document.createTextNode(todo.name);
+            newLi.appendChild(newLiText);
+            newLi.style.textDecoration = todo.isComplete? 'line-through' : 'none';
+            newLi.addEventListener('click',() =>{
+                store.dispatch(toggleTodoAction(todo.id));
+            });
+            todoUl.appendChild(newLi);
+        }
+        /*** DISPATCHING AN ACTION USING ACTION CREATOR ***/
+        // store.dispatch(addTodoAction({
+        //     id : 1,
+        //     name: "React AutoComplete",
+        //     isComplete: false
+        // }))
+        // store.dispatch(addTodoAction({
+        //     id: 2,
+        //     name: "React Complete",
+        //     isComplete: true
+        // }))
+        // store.dispatch({
+        //     type : "TOGGLE_TODO",
+        //     id : 1  
+        // })
+        // store.dispatch({
+        //     type : "REMOVE_TODO",
+        //     id: 1  
+        // })
+        // store.dispatch(addGoalAction(
+        //     {
+        //         id: 1,
+        //         name: "Learn to dance",
+        //         isComplete: false
+        //     }
+        // ))
+        // store.dispatch(addGoalAction(
+        //     {
+        //         id: 2,
+        //         name: "Read Stoner",
+        //         isComplete: false
+        //     }  
+        // ))
+        
+
+        /*** DISPATCHING AN ACTION WITHOUT USING ACTION CREATOR***/
+        // store.dispatch({
+        // type : "ADD_TODO",
+        // todo:{
+        //     id: 1,
+        //     name: "React Complete",
+        //     isComplete: true
+        // }  
+        // })
+
+
+        </script>
+    </body>
+</html>
