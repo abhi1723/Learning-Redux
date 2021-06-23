@@ -1,6 +1,7 @@
-import React, { useState }  from 'react';
+import React, { useEffect, useState }  from 'react';
 import InputTextComponent from './Components/InputTextComponent';
 import ListComponent from './Components/ListComponent';
+import Data from './Components/Data';
 function createStore(reducer){
   let state;
   let listeners =[];
@@ -24,7 +25,7 @@ function createStore(reducer){
 }
 function reducer(state={},action){
   return{
-    todos : todos(state.todos,action)
+    todos : todos(state.todos,action),
   }
 }
 function todos(todos=[],action){
@@ -34,6 +35,9 @@ function todos(todos=[],action){
   else if(action.type==="DELETE_TODO"){
     return todos.filter(todo => todo.id !== action.id);
   } 
+  if(action.type==="ADD_TODOS"){
+    return action.todos;
+  }
   // else if(action.type=="UPDATE_TODO"){
   //   return todos.map(todo =>{todo.id !==action.id? todo : Object.assign({},todo,{isComplete: false})});
   // }
@@ -44,14 +48,32 @@ store.subscribe(()=>{
 })
 function App() {
   const [toDoList,setToDoList] = useState([]);
+  const [showloading,setShowLoading] = useState(true);
   const forceUpdate =() => {
     setToDoList(store.getState().todos);
   }
+  useEffect(()=>{
+    Promise.all([
+      Data()
+    ],).then(([todos])=>{
+      console.log("todos from Promise",todos);
+      store.dispatch({
+        type : 'ADD_TODOS',
+        todos
+      })
+      setToDoList(store.getState().todos);
+      setShowLoading(false);
+    })
+  },[]);
+  
   return (
     <div className="App">
       <h1>TODO APP </h1>
-      <InputTextComponent store={store} forceUpdate={forceUpdate} />
-      <ListComponent toDoList={toDoList} />
+      {showloading ? <h1>Loading...!!</h1> :
+      <span>
+        <InputTextComponent store={store} forceUpdate={forceUpdate} />
+        <ListComponent toDoList={toDoList} />
+      </span>} 
     </div>
   );
 }
