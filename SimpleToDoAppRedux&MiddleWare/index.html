@@ -181,6 +181,12 @@
             name: "React Complete",
             isComplete: true
         }))
+        store.dispatch(addTodoAction({
+            id: 3,
+            name: "Node Complete",
+            isComplete: false
+        }))
+        
         store.dispatch({
             type : "TOGGLE_TODO",
             id : 1  
