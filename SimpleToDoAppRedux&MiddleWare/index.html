@@ -149,10 +149,7 @@
             goals
         }),Redux.applyMiddleware(checkForString,logger));
         store.subscribe(()=>{
-            // console.log("The new state is : ",store.getState());
-        });
-        store.subscribe(()=>{
-            console.log("The store changed.");
+            console.log("The store changed.",store.getState());
         });
         store.subscribe(() =>{
             const {todos, goals} = store.getState();
