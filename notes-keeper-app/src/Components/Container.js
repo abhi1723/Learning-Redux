@@ -5,12 +5,20 @@ import PastNotes from "./PastNotes";
 // import Reducer from "../Reducers/Reducer";
 import notes from "../Reducers/NotesReducer";
 import {StoreContext} from "../Contexts";
-import { combineReducers, createStore } from "redux";
+import { applyMiddleware, combineReducers, createStore } from "redux";
+import {ADD_NOTE} from "../Constants";
 export default function Container() {
+
+    const checkerMiddleware = store => next =>action =>{
+        if(action.type ===ADD_NOTE){
+            console.log("Logging Info. through the middleware", store.getState().notes);
+        }
+        return next(action);
+    }
     // const store = CreateStore(Reducer);
     const store = createStore(combineReducers({
         notes
-    }));
+    }),applyMiddleware(checkerMiddleware));
     store.subscribe(() => {
         console.log("state : ", store.getState() );
     })
